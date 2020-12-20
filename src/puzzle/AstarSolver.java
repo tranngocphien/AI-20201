@@ -1,5 +1,6 @@
 package puzzle;
 
+import java.net.Socket;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -11,16 +12,21 @@ public class AstarSolver {
 	public Stack<Board> solution = null;
 	private SearchNode searchNode;
 	
-	public static int countNode = 0;
-	public static Set<Integer> CLOSE;
+	public int countNode = 0;
+	public Set<Integer> CLOSE;
+	public int x ;// hàm heuristics
+	public String result;
+	public long timeSolve;
 	
-	public AstarSolver(Board initialBoard2) {
+	public AstarSolver(Board initialBoard2, int x) {
+		this.x = x;
 		try {
+			long timeStart = System.currentTimeMillis();
 			PriorityQueue<SearchNode> FRINGE = new PriorityQueue<SearchNode>();
 			
 			CLOSE = new HashSet<>();
 			
-			searchNode = new SearchNode(initialBoard2, null);
+			searchNode = new SearchNode(initialBoard2, null,x);
 			FRINGE.add(searchNode);
 			CLOSE.add(searchNode.getBoard().toString().hashCode());
 			while(true) {
@@ -33,16 +39,21 @@ public class AstarSolver {
 				}
 				
 				if(searchNode.getBoard().isGoal()) {
+					long timeEnd = System.currentTimeMillis();
+					this.timeSolve = timeEnd - timeStart;
 					break;
 				}
-				
+
 				for( Board neighbor : searchNode.getBoard().getNeighbor()) {
 					int hashCode = neighbor.toString().hashCode();
 					if(!CLOSE.contains(hashCode)) {
-						FRINGE.add(new SearchNode(neighbor, searchNode));
+						FRINGE.add(new SearchNode(neighbor, searchNode,x));
 						CLOSE.add(hashCode);
+						countNode++;
 					}
+
 				}
+
 			}
 			
 			solution = new Stack<Board>();
@@ -58,23 +69,24 @@ public class AstarSolver {
 		}
 	}
 	public static void main(String[] args) {
-    //    int[] tiles = {7,2,4,5,0,6,8,3,1};
+//        int[] tiles = {7,2,4,5,0,6,8,3,1};
        //int[] tiles = {1,2,0,3,4,5,6,7,8,9,10,11,12,13,14,15};
 //       int tiles[] = {5,1,3,2,0,7,4,8,6};
 //        int[] tiles = {4,1,2,3,8,5,6,7,12,9,10,11,0,13,14,15};
-//       int[] tiles = {2,3,4,8,1,6,0,12,5,10,7,11,9,13,14,15}; //Easy: 13 moves
-//        int[] tiles = {6,8,11,4,9,15,14,3,1,13,12,10,0,5,7,2}; //hard 2: 49 moves
-//        int[] tiles = {5,4,3,8,9,2,6,1,0,13,14,7,15,11,10,12}; //hard 1: 38 moves
-		int[] tiles = {0,7,5,8,3,4,2,1,6};
+//       int[] tiles = {2,3,4,8,1,6,0,12,5,10,7,11,9,13,14,15}; 
+        int[] tiles = {6,8,11,4,9,15,14,3,1,13,12,10,0,5,7,2}; 
+//        int[] tiles = {5,4,3,8,9,2,6,1,0,13,14,7,15,11,10,12}; 
+//		int tiles[] = {3,8,1,4,0,5,7,2,6};
 
-
-
-        Board board2 = new Board(tiles, 3);
-        AstarSolver astarSolver = new AstarSolver(board2);
+        Board board2 = new Board(tiles, 4);
+        AstarSolver astarSolver = new AstarSolver(board2,3);
         System.out.println(astarSolver.solution.size());
         for(Board board22 : astarSolver.solution) {
         	System.out.println(board22.toString());
         }
+        System.out.println(astarSolver.countNode);
+        System.out.println(astarSolver.timeSolve);
+        System.out.println(astarSolver.solution.size());
 
 	}
 

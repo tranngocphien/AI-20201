@@ -11,15 +11,21 @@ import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Stack;
 
+import javax.swing.JOptionPane;
+
 import application.Cell;
-//import application.Main.LineToAbs;
-//import application.Main.MoveToAbs;
 import javafx.animation.PathTransition;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.SelectionModel;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -31,7 +37,6 @@ import javafx.util.Duration;
 import puzzle.Board;
 import puzzle_test.AstarSolver;
 import puzzle_test.Board2;
-import sun.jvm.hotspot.oops.java_lang_Class;
 
 public class MainController implements Initializable {
 	private int tileCount;
@@ -39,9 +44,15 @@ public class MainController implements Initializable {
 
 	private double tileSize;
 	private List<Cell> cells = new ArrayList<Cell>();
+	private Stack<Board> solutions = new Stack<Board>();
 
 	@FXML
 	private Pane panel;
+    @FXML
+    private Label lbResult;
+
+    @FXML
+    private ComboBox<String> cbHeuristic;
 
 	public void setPane(int tileCount) {
 		this.tileCount = tileCount;
@@ -97,10 +108,6 @@ public class MainController implements Initializable {
 
 			imageView.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
 				moveCell((Node) mouseEvent.getSource());
-				for(int j = 0; j < cells.size(); j++) {
-					System.out.print(cells.get(j).getIndex() + " ");
-				}
-				System.out.println();
 
 			});
 
@@ -111,29 +118,56 @@ public class MainController implements Initializable {
 		}
 
 	}
+	
+	public int getblank() {
+		int res = 0;
+		for(int i = 0; i < cells.size(); i++) {
+			if(cells.get(i).getIndex() == 0) {
+				res = i;
+			}
+		}
+		return res;
+	}
 
 	public void shuffle() {
 
+
 		Random rnd = new Random();
 
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 10; i++) {
 
 			int a = rnd.nextInt(cells.size());
 			int b = rnd.nextInt(cells.size());
 
 			if (a == b)
 				continue;
-
-			// skip bottom right cell swap, we want the empty cell to remain there
-			// if( cells.get(a)() || cells.get(b).isEmpty())
-			// continue;
-
+			
 			swap(cells.get(a), cells.get(b));
 
 		}
+		
+		
+//		Random rndRandom = new Random();
+//		for(int i = 0; i < 1000; i++) {
+//			int a = rndRandom.nextInt(3);
+//			int blank = this.getblank();
+//			if(this.getblank()/tileCount > 0 && a == 0) {
+//				swap(cells.get(blank), cells.get(blank - tileCount));
+//			}
+//			if(this.getblank()%tileCount < tileCount - 1 && a == 1) {
+//				swap(cells.get(blank), cells.get(blank + 1));
+//			}
+//			if(this.getblank()/tileCount < tileCount - 1 && a == 2) {
+//				swap(cells.get(blank), cells.get(blank + tileCount));
+//			}
+//			if(this.getblank()%tileCount > 0 && a == 3) {
+//				swap(cells.get(blank), cells.get(blank - 1));
+//			}
+//		}
 	}
 	
 
+	
 
 	public void swap(Cell cellA, Cell cellB) {
 
@@ -146,15 +180,20 @@ public class MainController implements Initializable {
 
 	}
 
+	public void initCombobox() {
+		ObservableList<String> list = FXCollections.observableArrayList(new String[] { "Heuristic1", "Heuristic2", "Heuristic3",
+				"Heuristic4", "Heuristic5","Heuristic6"});
+		cbHeuristic.setItems(list);
+	}
+	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-
+		initCombobox();
 	}
 	
 
 	public void moveCell(Node node) {
 
-		// get current cell using the selected node (imageview)
 		Cell currentCell = null;
 		for (Cell tmpCell : cells) {
 			if (tmpCell.getCurrentImage() == node) {
@@ -162,11 +201,11 @@ public class MainController implements Initializable {
 				break;
 			}
 		}
+		
 
 		if (currentCell == null)
 			return;
 
-		// get empty cell
 		Cell emptyCell = null;
 
 		for (Cell tmpCell : cells) {
@@ -179,8 +218,7 @@ public class MainController implements Initializable {
 		if (emptyCell == null)
 			return;
 
-		// check if cells are swappable: neighbor distance either x or y must be 1 for a
-		// valid move
+
 		int steps = Math.abs(currentCell.getX() - emptyCell.getX()) + Math.abs(currentCell.getY() - emptyCell.getY());
 		if (steps != 1) {
 			return;
@@ -197,8 +235,8 @@ public class MainController implements Initializable {
         pathTransition.setCycleCount(1);
         pathTransition.setAutoReverse(false);
 
-        final Cell cellA = currentCell;
-        final Cell cellB = emptyCell;
+        Cell cellA = currentCell;
+        Cell cellB = emptyCell;
         pathTransition.setOnFinished(actionEvent -> {
 
             swap( cellA, cellB);
@@ -207,6 +245,13 @@ public class MainController implements Initializable {
         });
 
         pathTransition.play();
+        
+		for(int j = 0; j < cells.size(); j++) {
+			System.out.print(cells.get(j).getIndex() + " ");
+		}
+		System.out.println();
+        
+
 
 
 	}
@@ -224,7 +269,6 @@ public class MainController implements Initializable {
 
 	}
 
-	// absolute (layoutX/Y) transitions using the pathtransition for LineTo
 	public static class LineToAbs extends LineTo {
 
 		public LineToAbs(Node node, double x, double y) {
@@ -234,7 +278,7 @@ public class MainController implements Initializable {
 
 	}
 	
-	public void change(ActionEvent event) {
+	public void solve(ActionEvent event) {
 		int[] tiles = new int[cells.size()];
 		for (int i = 0; i < cells.size(); i++) {
 			Cell cell = cells.get(i);
@@ -242,20 +286,67 @@ public class MainController implements Initializable {
 			tiles[i] = cells.get(i).getIndex();
 		}
 		Board board = new Board(tiles, tileCount);
-		puzzle.AstarSolver astarSolver = new puzzle.AstarSolver(board);
-		for(Board board22 : astarSolver.solution) {
-        	System.out.println(board22.toString());
-        }
-		while(!astarSolver.solution.isEmpty()) {
-			int index = astarSolver.solution.pop().getBlank();
-			System.out.println(index);
+		
+		int x = 1;
+		SelectionModel<String> model = cbHeuristic.getSelectionModel();
+		String selected = model.getSelectedItem();
+		if(selected == null) {
+			x = 3;
+		}
+		if(selected.equals("Heuristic1")) {
+			x = 1;
+		}
+		else if(selected.equals("Heuristic2")) {
+			x = 2;
+		}
+		else if(selected.equals("Heuristic3")) {
+			x = 3;
+		}
+		else if(selected.equals("Heuristic4")) {
+			x = 4;
+		}
+		else if(selected.equals("Heuristic5")) {
+			x = 5;
+		}
+		else if(selected.equals("Heuristic6")) {
+			x = 6;
+		}
+		else {
+			x = 1;
+		}
+		if(board.isSolve()) {
 			
+			puzzle.AstarSolver astarSolver = new puzzle.AstarSolver(board,x);
+			solutions = astarSolver.solution;
+			for(Board board22 : astarSolver.solution) {
+				System.out.println(board22.toString());
+			}
+			if(astarSolver.solution.size() > 0)
+			lbResult.setText("Tìm thấy lời\n giải trong \n" + astarSolver.timeSolve + "milis\nsố nút đã duyệt " + astarSolver.countNode +"\nsố bước đi "+ astarSolver.solution.size());
+			else {
+				lbResult.setText("Không tìm được lời giải");
+			}
+		}
+		else {
+			lbResult.setText("TRẠNG THÁI KHÔNG HỢP\n LỆ ĐỂ GIẢI");
 		}
 
 	}
 	
-
+	public void run() {
+		if(!solutions.isEmpty()) {
+			int index = solutions.pop().getBlank();
+			moveCell(cells.get(index).getCurrentImage());
+		}
+		else {
+			System.out.println("Giai xong roi");
+		}
+	}
 	
-
+	public void printBoard(ActionEvent event) {
+		for(Cell cell : cells) {
+			System.out.print(cell.getIndex() + " ");
+		}
+	}
 
 }

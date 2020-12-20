@@ -21,6 +21,43 @@ public class Board {
 		goal[b.length - 1] = 0;
 	}
 
+	public boolean equals(Board b2) {
+		for (int i = 0; i < this.board.length; i++) {
+			if (this.board[i] != b2.board[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// Kiem tra co the giai duoc khong
+	public boolean isSolve() {
+		int index_blank = getBlank();
+		int row = index_blank / size + 1;
+		int count = 0;
+
+		for (int i = 0; i < board.length; i++) {
+			for (int j = i + 1; j < board.length; j++) {
+				if (board[j] < board[i] && board[j] != 0) {
+					count++;
+				}
+			}
+		}
+		System.out.println(count);
+
+		if (size % 2 == 0) {
+			if (row % 2 == 0) {
+				return count % 2 == 0;
+			} else {
+				return count % 2 == 1;
+			}
+		} else {
+			return count % 2 == 0;
+		}
+//		return true;
+
+	}
+
 	public int getHammingDistance() {
 		int distance = 0;
 		for (int i = 0; i < this.board.length; i++) {
@@ -53,25 +90,105 @@ public class Board {
 	 * (int i = 0; i < this.board.length; i++) { if (this.board[i] != i) {
 	 * distance++; } } return distance; }
 	 */
+	public int getDistance() {
+		int distance = 0;
+		for (int i = 0; i < board.length; i++) {
+			int value = board[i] - 1;
+			if (value != i) {
+				if (value == -1) {
+					value = -1 + size * size;
+				}
+				int x = Math.abs((value / size) * (value / size) - (i / size) * (i / size));
+				int y = Math.abs((value % size) * (value % size) - (i % size) * (i % size));
+				distance = distance + (int) Math.sqrt(x + 1) + (int) Math.sqrt(y + 1);
+			}
+		}
+		return distance;
+
+	}
+
+	public int getDistance2() {
+		int a1 = this.getHammingDistance();
+		int a2 = this.getManhattanDistance();
+		if (a2 > a1) {
+			return a2;
+		} else {
+			return a1;
+		}
+
+	}
+	
+	public int getDistance3() {
+		int distance = 0;
+		for (int i = 0; i < board.length; i++) {
+			int value = board[i] - 1;
+			if (value != i) {
+				if (value == -1) {
+					value = -1 + size * size;
+				}
+				int x = ((value / size)  - (i / size))*((value / size)  - (i / size));
+				int y = ((value % size)  - (i % size))*((value % size)  - (i % size));
+				distance = distance + (int) Math.sqrt(x + y);
+			}
+		}
+		return distance;
+		
+	}
+
+	public int getManhattanLinearConfict() {
+		int distance = 0;
+		for (int i = 0; i < board.length; i++) {
+			int value = board[i] - 1;
+			if (value != i) {
+				if (value == -1) {
+					value = -1 + size * size;
+				}
+				int x = Math.abs(value / size - i / size);
+				int y = Math.abs(value % size - i % size);
+				distance = distance + x + y;
+			}
+			if( i % size != size - 1)
+			if(board[i + 1] != 0 && board[i +1] == board[i] - 1) {
+				distance += 2;
+			}
+			if(i < board.length - size)
+			if(board[i + size]!= 0 && board[i + size] == board[i] - size ) {
+				distance += 2;
+			}
+
+		}
+		
+		return distance;
+	}
 
 	public int estimate(int x) {
 		if (x == 1) {
-			return getHammingDistance(); // số điểm sai vị trí
-		} else
-			return getManhattanDistance(); // khoảng cách ngắn nhất để đi đúng vị trí
+			return getHammingDistance();
+		} else if (x == 2) {
+			return getManhattanDistance();
+		} else if (x == 3) {
+			return getManhattanLinearConfict();
+		} else if (x == 4) {
+			return getDistance();
+		} else if(x == 5){
+			return getDistance2();
+		}
+		else {
+			return getDistance3();
+		}
 	}
 
-	public boolean isGoal() { // trả về game over hay continue
+	public boolean isGoal() {
 		if (this.getHammingDistance() == 0) {
 			return true;
 		} else
 			return false;
 	}
-	
+
 	public int getBlank() {
 		int index_0 = 0;
-		for(int i = 0; i < board.length ; i++) {
-			if(board[i] == 0) {
+		for (int i = 0; i < board.length; i++) {
+			if (board[i] == 0) {
 				index_0 = i;
 				break;
 			}
@@ -142,14 +259,24 @@ public class Board {
 	}
 
 	public static void main(String[] args) {
-		int[] tiles = {6,8,11,4,9,15,14,3,1,13,12,10,0,5,7,2}; //hard 2: 49 moves
+		// int[] tiles = {6,8,11,4,9,15,14,3,1,13,12,10,0,5,7,2}; //hard 2: 49 moves
+//		int tiles[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,15,14};
+		//int tiles[] = {3,9,1,15,14,11,4,6,13,0,10,12,2,7,8,5};
+		int tiles[] = {6,13,7,10,8,9,11,0,15,2,12,5,14,3,1,4};
+		int tiles2[] = { 3, 8, 1, 4, 0, 7, 5, 2, 6 };
+
 		Board board = new Board(tiles, 4);
+
 		for (int i = 0; i < tiles.length; i++) {
 			System.out.print(board.goal[i] + " ");
 		}
+		if(board.isSolve()) {
+			System.out.println("CAN SOLVE");
+		}
 		System.out.println();
 		System.out.println(board.getManhattanDistance());
-
+		System.out.println("aa");
+		System.out.println(board.getManhattanLinearConfict());
 	}
 
 }
