@@ -35,8 +35,7 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.util.Duration;
 import puzzle.Board;
-import puzzle_test.AstarSolver;
-import puzzle_test.Board2;
+
 
 public class MainController implements Initializable {
 	private int tileCount;
@@ -68,7 +67,7 @@ public class MainController implements Initializable {
 		FileInputStream fileInputStream = null;
 		try {
 			fileInputStream = new FileInputStream(
-					"C:\\Users\\PhienTran\\eclipse-workspace\\Puzzle\\src\\application\\anh.png");
+					"C:\\Users\\PhienTran\\eclipse-workspace\\AI\\src\\puzzle\\anh.png");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -90,11 +89,11 @@ public class MainController implements Initializable {
 
 			}
 		}
-		//shuffle();
+		shuffle();
 		int[] tiles = new int[cells.size()];
 		for (int i = 0; i < cells.size(); i++) {
 			Cell cell = cells.get(i);
-			System.out.print(cell.getIndex() + " ");
+//			System.out.print(cell.getIndex() + " ");
 			tiles[i] = cells.get(i).getIndex();
 		}
 
@@ -111,7 +110,6 @@ public class MainController implements Initializable {
 
 			});
 
-			// position images on scene
 			cell.getCurrentImage().relocate(tileSize * cell.getX(), tileSize * cell.getY());
 			panel.getChildren().add(imageView);
 
@@ -246,11 +244,6 @@ public class MainController implements Initializable {
 
         pathTransition.play();
         
-		for(int j = 0; j < cells.size(); j++) {
-			System.out.print(cells.get(j).getIndex() + " ");
-		}
-		System.out.println();
-        
 
 
 
@@ -282,7 +275,7 @@ public class MainController implements Initializable {
 		int[] tiles = new int[cells.size()];
 		for (int i = 0; i < cells.size(); i++) {
 			Cell cell = cells.get(i);
-			System.out.print(cell.getIndex() + " ");
+//			System.out.print(cell.getIndex() + " ");
 			tiles[i] = cells.get(i).getIndex();
 		}
 		Board board = new Board(tiles, tileCount);
@@ -318,11 +311,10 @@ public class MainController implements Initializable {
 			
 			puzzle.AstarSolver astarSolver = new puzzle.AstarSolver(board,x);
 			solutions = astarSolver.solution;
-			for(Board board22 : astarSolver.solution) {
-				System.out.println(board22.toString());
-			}
-			if(astarSolver.solution.size() > 0)
+			if(astarSolver.solution.size() > 0) {
 			lbResult.setText("Tìm thấy lời\n giải trong \n" + astarSolver.timeSolve + "milis\nsố nút đã duyệt " + astarSolver.countNode +"\nsố bước đi "+ astarSolver.solution.size());
+			System.out.println(astarSolver.countNode + " " + astarSolver.solution.size());
+			}
 			else {
 				lbResult.setText("Không tìm được lời giải");
 			}

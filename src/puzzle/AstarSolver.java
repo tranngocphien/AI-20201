@@ -81,9 +81,6 @@ public class AstarSolver {
         Board board2 = new Board(tiles, 4);
         AstarSolver astarSolver = new AstarSolver(board2,3);
         System.out.println(astarSolver.solution.size());
-        for(Board board22 : astarSolver.solution) {
-        	System.out.println(board22.toString());
-        }
         System.out.println(astarSolver.countNode);
         System.out.println(astarSolver.timeSolve);
         System.out.println(astarSolver.solution.size());

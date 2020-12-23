@@ -43,7 +43,6 @@ public class Board {
 				}
 			}
 		}
-		System.out.println(count);
 
 		if (size % 2 == 0) {
 			if (row % 2 == 0) {
@@ -100,7 +99,7 @@ public class Board {
 				}
 				int x = Math.abs((value / size) * (value / size) - (i / size) * (i / size));
 				int y = Math.abs((value % size) * (value % size) - (i % size) * (i % size));
-				distance = distance + (int) Math.sqrt(x + 1) + (int) Math.sqrt(y + 1);
+				distance = distance + (int) Math.sqrt(x)+1 + (int) Math.sqrt(y) + 1;
 			}
 		}
 		return distance;
@@ -262,10 +261,11 @@ public class Board {
 		// int[] tiles = {6,8,11,4,9,15,14,3,1,13,12,10,0,5,7,2}; //hard 2: 49 moves
 //		int tiles[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,15,14};
 		//int tiles[] = {3,9,1,15,14,11,4,6,13,0,10,12,2,7,8,5};
-		int tiles[] = {6,13,7,10,8,9,11,0,15,2,12,5,14,3,1,4};
+		//int tiles[] = {6,13,7,10,8,9,11,0,15,2,12,5,14,3,1,4};
 		int tiles2[] = { 3, 8, 1, 4, 0, 7, 5, 2, 6 };
+		int tiles[] = {5,2,1,7,0,6,4,8,3};
 
-		Board board = new Board(tiles, 4);
+		Board board = new Board(tiles, 3);
 
 		for (int i = 0; i < tiles.length; i++) {
 			System.out.print(board.goal[i] + " ");
@@ -274,9 +274,12 @@ public class Board {
 			System.out.println("CAN SOLVE");
 		}
 		System.out.println();
+		System.out.println(board.getHammingDistance());
 		System.out.println(board.getManhattanDistance());
-		System.out.println("aa");
 		System.out.println(board.getManhattanLinearConfict());
+		System.out.println(board.getDistance());
+		System.out.println(board.getDistance2());
+		System.out.println(board.getDistance3());
 	}
 
 }

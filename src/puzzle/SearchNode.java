@@ -1,9 +1,7 @@
 package puzzle;
 
-import java.security.cert.CertPathChecker;
 
-import puzzle_test.Board2;
-import puzzle_test.SearchNode2;
+
 
 public class SearchNode implements Comparable<SearchNode> {
 	private Board board;
